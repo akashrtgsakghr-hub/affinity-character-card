@@ -1,0 +1,1690 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Affinity Island Status Bar</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: transparent">
+    <div class="th-status-wrapper" style="width: 440px; margin: 0 auto; background: transparent; position: relative">
+      <!-- 引入依赖样式与图标库 -->
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script>
+        tailwind.config = { darkMode: 'class' };
+      </script>
+      <script src="https://unpkg.com/lucide@latest"></script>
+
+      <style>
+        .th-status-wrapper {
+          font-family:
+            -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'SF Compact Display', 'PingFang SC',
+            'Helvetica Neue', Arial, sans-serif;
+          letter-spacing: -0.015em;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+          -webkit-user-select: none;
+        }
+
+        .th-status-wrapper svg.lucide,
+        .th-status-wrapper svg {
+          stroke-width: 1.3px !important;
+          stroke-linecap: round !important;
+          stroke-linejoin: round !important;
+          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.03));
+        }
+
+        .th-status-wrapper .spring-ease {
+          transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .th-status-wrapper .click-spring:active {
+          transform: scale(0.92);
+        }
+        .th-status-wrapper .glass-panel {
+          backdrop-filter: blur(35px) saturate(210%);
+          -webkit-backdrop-filter: blur(35px) saturate(210%);
+        }
+
+        .th-status-wrapper .glass-icon-btn {
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          background: rgba(255, 255, 255, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+          transition:
+            background 0.25s ease,
+            border-color 0.25s ease,
+            transform 0.2s ease;
+        }
+        .th-status-wrapper .glass-icon-btn:hover {
+          background: rgba(255, 255, 255, 0.75);
+          border-color: rgba(255, 255, 255, 0.6);
+        }
+        .th-status-wrapper.dark .glass-icon-btn {
+          background: rgba(36, 36, 42, 0.55);
+          border-color: rgba(255, 255, 255, 0.12);
+          box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+        .th-status-wrapper.dark .glass-icon-btn:hover {
+          background: rgba(52, 52, 60, 0.7);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .th-status-wrapper .glass-card-item {
+          background: rgba(245, 245, 248, 0.75);
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.02),
+            inset 0 1px 0 rgba(255, 255, 255, 0.7);
+          transition: all 0.25s ease;
+        }
+        .th-status-wrapper.dark .glass-card-item {
+          background: rgba(255, 255, 255, 0.055);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .th-status-wrapper .ios-divider-vertical {
+          width: 1px;
+          align-self: stretch;
+          margin: 6px 0;
+          background: linear-gradient(
+            to bottom,
+            transparent 0px,
+            rgba(120, 120, 128, 0.18) 4px,
+            rgba(120, 120, 128, 0.22) 50px,
+            rgba(120, 120, 128, 0.18) 90px,
+            transparent 100px
+          );
+          flex-shrink: 0;
+        }
+        .th-status-wrapper.dark .ios-divider-vertical {
+          background: linear-gradient(
+            to bottom,
+            transparent 0px,
+            rgba(255, 255, 255, 0.08) 4px,
+            rgba(255, 255, 255, 0.14) 50px,
+            rgba(255, 255, 255, 0.08) 90px,
+            transparent 100px
+          );
+        }
+
+        .th-status-wrapper .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .th-status-wrapper .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+
+        .th-status-wrapper .breathing-light-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 14px;
+          height: 14px;
+          flex-shrink: 0;
+        }
+        .th-status-wrapper .breathing-core {
+          width: 6px;
+          height: 6px;
+          border-radius: 9999px;
+          background-color: #10b981 !important;
+          position: relative;
+          z-index: 2;
+          animation: th-breath-glow 2.4s infinite ease-in-out;
+        }
+        .th-status-wrapper .breathing-aura {
+          position: absolute;
+          inset: -3px;
+          border-radius: 9999px;
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0px, transparent 10px) !important;
+          animation: th-breath-aura 2.4s infinite ease-in-out;
+          pointer-events: none;
+          z-index: 1;
+        }
+        @keyframes th-breath-glow {
+          0%,
+          100% {
+            transform: scale(0.9);
+            opacity: 0.75;
+            box-shadow: 0 0 4px 1px rgba(16, 185, 129, 0.5);
+          }
+          50% {
+            transform: scale(1.15);
+            opacity: 1;
+            box-shadow:
+              0 0 0 3px rgba(16, 185, 129, 0.2),
+              0 0 10px 2.5px rgba(16, 185, 129, 0.9);
+          }
+        }
+        @keyframes th-breath-aura {
+          0%,
+          100% {
+            transform: scale(0.75);
+            opacity: 0.2;
+          }
+          50% {
+            transform: scale(1.35);
+            opacity: 0.9;
+          }
+        }
+
+        @keyframes th-wave-1 {
+          0%,
+          100% {
+            height: 4px;
+          }
+          50% {
+            height: 14px;
+          }
+        }
+        @keyframes th-wave-2 {
+          0%,
+          100% {
+            height: 6px;
+          }
+          50% {
+            height: 16px;
+          }
+        }
+        @keyframes th-wave-3 {
+          0%,
+          100% {
+            height: 3.5px;
+          }
+          50% {
+            height: 11px;
+          }
+        }
+        @keyframes th-wave-4 {
+          0%,
+          100% {
+            height: 5px;
+          }
+          50% {
+            height: 15px;
+          }
+        }
+        .th-status-wrapper .wave-bar-1 {
+          animation: th-wave-1 0.95s ease-in-out infinite alternate;
+        }
+        .th-status-wrapper .wave-bar-2 {
+          animation: th-wave-2 1.15s ease-in-out infinite alternate 0.15s;
+        }
+        .th-status-wrapper .wave-bar-3 {
+          animation: th-wave-3 0.85s ease-in-out infinite alternate 0.3s;
+        }
+        .th-status-wrapper .wave-bar-4 {
+          animation: th-wave-4 1.05s ease-in-out infinite alternate 0.45s;
+        }
+
+        @keyframes th-heart-pop {
+          0% {
+            transform: scale(0) translate(0, 0);
+            opacity: 0;
+          }
+          30% {
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1.2) translate(var(--tx), var(--ty));
+            opacity: 0;
+          }
+        }
+        .th-status-wrapper .heart-particle {
+          position: absolute;
+          pointer-events: none;
+          z-index: 55;
+          width: 14px;
+          height: 14px;
+          background: #fb7185 !important;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>')
+            center/contain no-repeat;
+          animation: th-heart-pop 0.85s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        .th-status-wrapper .watch-dial-bezel {
+          background: radial-gradient(circle at center, transparent 34px, rgba(0, 0, 0, 0.06) 42px, transparent 52px);
+          box-shadow:
+            0 0 0 1.5px rgba(0, 0, 0, 0.06),
+            0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+        .th-status-wrapper.dark .watch-dial-bezel {
+          background: radial-gradient(
+            circle at center,
+            transparent 34px,
+            rgba(255, 255, 255, 0.06) 42px,
+            transparent 52px
+          );
+          box-shadow:
+            0 0 0 1.5px rgba(255, 255, 255, 0.08),
+            0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .th-status-wrapper .vinyl-disc-frame {
+          background:
+            radial-gradient(circle at center, transparent 20px, rgba(0, 0, 0, 0.7) 22px, transparent 25px),
+            repeating-radial-gradient(circle at center, #18181b 0px, #18181b 1.5px, #09090b 2px, #27272a 2.5px),
+            conic-gradient(
+              from 45deg at 50px 50px,
+              #09090b 0deg,
+              #3f3f46 45deg,
+              #09090b 90deg,
+              #18181b 135deg,
+              #3f3f46 180deg,
+              #09090b 225deg,
+              #3f3f46 270deg,
+              #09090b 315deg,
+              #18181b 360deg
+            );
+          box-shadow:
+            0 4px 14px rgba(0, 0, 0, 0.35),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+            inset 0 0 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .th-status-wrapper .tight-shadow {
+          box-shadow:
+            0 12px 34px rgba(0, 0, 0, 0.28),
+            0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        .th-status-wrapper.dark .tight-shadow {
+          box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+        }
+
+        @keyframes th-bubble-pop {
+          0% {
+            transform: scale(0.6) translateY(8px);
+            opacity: 0;
+          }
+          70% {
+            transform: scale(1.03) translateY(-2px);
+            opacity: 0.95;
+          }
+          100% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+        .th-status-wrapper .bubble-anim {
+          animation: th-bubble-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.25) forwards;
+        }
+        @keyframes th-bubble-fade {
+          0% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.9) translateY(-6px);
+            opacity: 0;
+          }
+        }
+        .th-status-wrapper .bubble-fadeout {
+          animation: th-bubble-fade 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+        }
+
+        .th-status-wrapper .modal-layer:not(.hidden) {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        .th-status-wrapper .modal-body {
+          flex: 1 1 0px !important;
+          min-height: 0px !important;
+          max-height: 330px !important;
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+          touch-action: pan-y !important;
+          overscroll-behavior: contain !important;
+        }
+        .th-status-wrapper .modal-body::-webkit-scrollbar {
+          width: 3.5px !important;
+          display: block !important;
+        }
+        .th-status-wrapper .modal-body::-webkit-scrollbar-track {
+          background: transparent !important;
+        }
+        .th-status-wrapper .modal-body::-webkit-scrollbar-thumb {
+          background: rgba(140, 140, 140, 0.3) !important;
+          border-radius: 9999px !important;
+        }
+        .th-status-wrapper .modal-body::-webkit-scrollbar-thumb:hover {
+          background: rgba(140, 140, 140, 0.6) !important;
+        }
+      </style>
+
+      <div class="flex items-center justify-center p-2 min-h-[70px]">
+        <div
+          class="island spring-ease glass-panel w-[315px] h-[48px] rounded-[28px] z-20 overflow-hidden flex flex-col relative tight-shadow ring-1 ring-black/10 dark:ring-white/15"
+        >
+          <div class="island-bg-layer absolute inset-0 bg-cover bg-center transition-all duration-700 z-0"></div>
+          <div class="island-mask-layer absolute inset-0 backdrop-blur-2xl transition-all duration-700 z-0"></div>
+
+          <!-- 收起状态 (原生 1:1 iOS 音乐播放灵动岛药丸) -->
+          <div
+            class="collapsed-island absolute inset-0 flex items-center justify-between px-3 cursor-pointer z-10 transition-all duration-300 ease-out opacity-100 scale-100"
+          >
+            <div class="flex items-center space-x-2 min-w-0 flex-1 mr-2">
+              <div
+                class="relative w-[30px] h-[30px] shrink-0 rounded-[8px] overflow-hidden shadow-xs ring-1 ring-black/5 dark:ring-white/20 bg-neutral-100/80 dark:bg-neutral-900 flex items-center justify-center"
+              >
+                <img class="collapsed-avatar w-full h-full object-cover" alt="avatar" />
+              </div>
+
+              <div class="flex flex-col justify-center min-w-0 flex-1 -translate-y-[2.5px]">
+                <div class="flex items-center space-x-1 truncate">
+                  <span
+                    class="collapsed-title text-[15px] font-bold tracking-tight text-neutral-900 dark:text-white truncate cursor-pointer hover:opacity-75 transition-opacity leading-tight"
+                    title="点击重命名歌曲标题"
+                    >Amore</span
+                  >
+                  <span class="collapsed-emoji text-[11px] leading-none shrink-0">✨</span>
+                </div>
+                <span
+                  class="collapsed-char-sub text-[10.5px] font-medium text-neutral-500 dark:text-neutral-400 truncate mt-[0.5px] leading-tight"
+                  >--</span
+                >
+              </div>
+            </div>
+
+            <div class="flex items-end justify-center gap-[2.5px] h-[16px] px-1 py-0.5 shrink-0" title="正在播放中">
+              <span class="wave-bar-1 w-[2.5px] rounded-full bg-rose-500 dark:bg-rose-400"></span>
+              <span class="wave-bar-2 w-[2.5px] rounded-full bg-rose-500 dark:bg-rose-400"></span>
+              <span class="wave-bar-3 w-[2.5px] rounded-full bg-rose-500 dark:bg-rose-400"></span>
+              <span class="wave-bar-4 w-[2.5px] rounded-full bg-rose-500 dark:bg-rose-400"></span>
+            </div>
+          </div>
+
+          <!-- 展开状态 (Apple Watch 风格播放盘面与属性容器) -->
+          <div
+            class="expanded-card absolute inset-0 flex flex-col p-3.5 z-10 transition-all duration-300 ease-out opacity-0 scale-95 pointer-events-none"
+          >
+            <!-- 顶栏：紧贴式时间 + 地点气温 -->
+            <div
+              class="flex items-center justify-between w-full border-b border-black/5 dark:border-white/10 pb-2 shrink-0 gap-2"
+            >
+              <div class="flex flex-col justify-center min-w-0 flex-1">
+                <div class="flex items-center space-x-2 min-w-0">
+                  <div class="breathing-light-container shrink-0">
+                    <div class="breathing-aura"></div>
+                    <div class="breathing-core"></div>
+                  </div>
+                  <span
+                    class="ui-time text-[16px] font-bold text-neutral-900 dark:text-white tracking-tight leading-none truncate"
+                    >--</span
+                  >
+                </div>
+                <div
+                  class="flex items-center space-x-1.5 text-[10px] text-neutral-500 dark:text-neutral-400 font-medium pl-[22px] mt-1 leading-none"
+                >
+                  <div class="flex items-center space-x-0.5 shrink-0">
+                    <i data-lucide="map-pin" class="w-2.5 h-2.5 shrink-0 opacity-70"></i>
+                    <span
+                      class="ui-location truncate font-semibold text-neutral-700 dark:text-neutral-300 max-w-[130px]"
+                      >--</span
+                    >
+                  </div>
+                  <span class="opacity-25">•</span>
+                  <span class="ui-weather shrink-0">--</span>
+                  <span class="opacity-25">•</span>
+                  <span class="ui-temp shrink-0">--</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-1.5 shrink-0 self-start pt-0.5">
+                <button
+                  class="btn-theme-modal glass-icon-btn click-spring w-6 h-6 flex items-center justify-center rounded-full text-neutral-600 dark:text-neutral-300"
+                  title="外观设置"
+                >
+                  <i data-lucide="palette" class="w-3 h-3"></i>
+                </button>
+                <button
+                  class="ui-theme-toggle-btn glass-icon-btn click-spring w-6 h-6 flex items-center justify-center rounded-full text-neutral-600 dark:text-neutral-300"
+                  title="外观模式切换"
+                >
+                  <i data-lucide="smartphone" class="w-3 h-3"></i>
+                </button>
+                <button
+                  class="btn-collapse glass-icon-btn click-spring w-6 h-6 flex items-center justify-center rounded-full text-neutral-400 dark:text-neutral-500"
+                  title="收起"
+                >
+                  <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 角色切换胶囊列表 -->
+            <div class="character-tabs flex items-center space-x-1 py-1.5 overflow-x-auto no-scrollbar shrink-0"></div>
+
+            <!-- 主体内容区 -->
+            <div class="flex-1 flex items-stretch gap-2.5 min-h-0 pt-0.5">
+              <!-- 左侧：Apple Watch 音乐播放盘面 -->
+              <div class="flex-1 flex flex-col items-center justify-center min-w-0 py-0.5">
+                <div class="relative shrink-0 mb-1 flex items-center justify-center">
+                  <div
+                    class="watch-dial-bezel w-[108px] h-[108px] rounded-full p-[3px] flex items-center justify-center relative"
+                  >
+                    <div class="vinyl-wrapper relative cursor-pointer click-spring group w-full h-full">
+                      <div
+                        class="vinyl-disc-frame w-full h-full rounded-full flex items-center justify-center relative transition-transform duration-300 group-hover:scale-[1.03]"
+                      >
+                        <div
+                          class="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,transparent_20px,rgba(255,255,255,0.08)_40px,transparent_48px)] pointer-events-none"
+                        ></div>
+
+                        <!-- 黑胶唱芯 -->
+                        <div
+                          class="ui-avatar-ring w-[62px] h-[62px] rounded-full bg-[#0a0a0d] border-[1.2px] border-amber-400/40 dark:border-amber-300/25 overflow-hidden shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] flex items-center justify-center relative z-10 ring-1 ring-black/70"
+                        >
+                          <img class="ui-avatar w-full h-full object-cover" alt="character avatar" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      class="btn-avatar-upload glass-icon-btn click-spring absolute bottom-0 right-0 flex items-center justify-center rounded-full text-neutral-700 dark:text-white z-20 w-[22px] h-[22px] shadow-sm border border-white/40 dark:border-white/20"
+                      title="更换头像 / 喜好食物Emoji"
+                    >
+                      <i data-lucide="camera" class="w-2.5 h-2.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center gap-0.5 w-full min-w-0 px-1 text-center mt-0.5">
+                  <div class="flex items-center justify-center gap-1 max-w-full">
+                    <span
+                      class="ui-char-name text-[14.5px] font-bold text-neutral-900 dark:text-white truncate tracking-tight cursor-pointer hover:opacity-75 active:scale-[0.98] transition-all"
+                      title="点击设置备注名"
+                      >--</span
+                    >
+                    <span class="ui-emotion-badge text-[12px] leading-none shrink-0 select-none">✨</span>
+                  </div>
+                  <div
+                    class="flex items-center justify-center gap-1 text-[9.5px] text-neutral-500 dark:text-neutral-400 w-full min-w-0"
+                  >
+                    <span class="text-[9px] opacity-70 shrink-0">👗</span>
+                    <span class="ui-outfit truncate font-medium">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 纵向分割线 -->
+              <div class="ios-divider-vertical"></div>
+
+              <!-- 右侧：E/P/R 容器 (情感依恋 / 肉体吸引 / 关系意愿) -->
+              <div class="w-[118px] shrink-0 flex flex-col justify-between gap-1.5 min-h-0 py-0.5">
+                <!-- E 情感依恋 -->
+                <div
+                  class="flex-1 min-h-0 px-2.5 py-1.5 rounded-xl glass-card-item flex flex-col justify-center gap-1 overflow-hidden"
+                >
+                  <div class="flex items-center justify-between w-full leading-none">
+                    <div class="flex items-center gap-1 shrink-0">
+                      <i data-lucide="heart" class="w-3 h-3 text-rose-500"></i>
+                      <span
+                        class="text-[9.5px] font-bold tracking-wider uppercase text-neutral-500 dark:text-neutral-400"
+                        >E 情感</span
+                      >
+                    </div>
+                    <span
+                      class="ui-val-e text-[14px] font-black text-rose-500 dark:text-rose-400 tabular-nums leading-none tracking-tight"
+                      >--</span
+                    >
+                  </div>
+                  <div class="w-full bg-neutral-200/80 dark:bg-white/10 h-[3.5px] rounded-full overflow-hidden">
+                    <div
+                      class="ui-bar-e h-full bg-rose-500 rounded-full transition-all duration-500"
+                      style="width: 0px"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- P 肉体吸引 -->
+                <div
+                  class="flex-1 min-h-0 px-2.5 py-1.5 rounded-xl glass-card-item flex flex-col justify-center gap-1 overflow-hidden"
+                >
+                  <div class="flex items-center justify-between w-full leading-none">
+                    <div class="flex items-center gap-1 shrink-0">
+                      <i data-lucide="flame" class="w-3 h-3 text-purple-500"></i>
+                      <span
+                        class="text-[9.5px] font-bold tracking-wider uppercase text-neutral-500 dark:text-neutral-400"
+                        >P 肉体</span
+                      >
+                    </div>
+                    <span
+                      class="ui-val-p text-[14px] font-black text-purple-500 dark:text-purple-400 tabular-nums leading-none tracking-tight"
+                      >--</span
+                    >
+                  </div>
+                  <div class="w-full bg-neutral-200/80 dark:bg-white/10 h-[3.5px] rounded-full overflow-hidden">
+                    <div
+                      class="ui-bar-p h-full bg-purple-500 rounded-full transition-all duration-500"
+                      style="width: 0px"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- R 关系意愿 -->
+                <div
+                  class="flex-1 min-h-0 px-2.5 py-1.5 rounded-xl glass-card-item flex flex-col justify-center gap-1 overflow-hidden"
+                >
+                  <div class="flex items-center justify-between w-full leading-none">
+                    <div class="flex items-center gap-1 shrink-0">
+                      <i data-lucide="shield" class="w-3 h-3 text-sky-500"></i>
+                      <span
+                        class="text-[9.5px] font-bold tracking-wider uppercase text-neutral-500 dark:text-neutral-400"
+                        >R 关系</span
+                      >
+                    </div>
+                    <span
+                      class="ui-val-r text-[14px] font-black text-sky-500 dark:text-sky-400 tabular-nums leading-none tracking-tight"
+                      >--</span
+                    >
+                  </div>
+                  <div class="w-full bg-neutral-200/80 dark:bg-white/10 h-[3.5px] rounded-full overflow-hidden">
+                    <div
+                      class="ui-bar-r h-full bg-sky-500 rounded-full transition-all duration-500"
+                      style="width: 0px"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 主题中心抽屉弹窗 (纯像素尺寸控制) -->
+            <div
+              class="modal-layer absolute inset-0 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-3xl hidden z-40 rounded-[32px] opacity-0 transition-all duration-300 ring-1 ring-black/10 dark:ring-white/15 overflow-hidden"
+            >
+              <div class="pt-2 pb-0 flex justify-center shrink-0">
+                <div class="w-8 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-60"></div>
+              </div>
+              <div
+                class="flex items-center justify-between px-4 py-2 border-b border-black/5 dark:border-white/10 shrink-0"
+              >
+                <div class="w-7"></div>
+                <h2 class="modal-title text-[14px] font-semibold text-neutral-900 dark:text-white tracking-tight">
+                  主题中心
+                </h2>
+                <button
+                  class="modal-close-btn glass-icon-btn click-spring w-7 h-7 rounded-full flex items-center justify-center text-neutral-600 dark:text-neutral-300"
+                >
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="modal-body px-4 py-3 pb-8"></div>
+            </div>
+
+            <input type="file" class="avatar-input hidden" accept="image/*" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 逻辑隔离脚本 -->
+      <script>
+        (function () {
+          // 严格隔离：仅锁定当前组件容器
+          const wrapper = document.currentScript.closest('.th-status-wrapper');
+          if (!wrapper) return;
+
+          function escapeHtml(str) {
+            return String(str == null ? '' : str).replace(
+              /[&<>"']/g,
+              c =>
+                ({
+                  '&': '&amp;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '"': '&quot;',
+                  "'": '&#39;',
+                })[c],
+            );
+          }
+
+          function clampNumber(num) {
+            const n = Number(num);
+            if (isNaN(n)) return 0;
+            const rounded = Math.round(n * 2) / 2;
+            return Math.max(0, Math.min(100, rounded));
+          }
+
+          // 读取与处理变量数据（按 Schema 严格映射）
+          function fetchFloorData() {
+            let vars = null;
+            try {
+              // 全局暴露规范：直接调用，严禁 TavernHelper.xxx
+              const messageId = typeof getCurrentMessageId === 'function' ? getCurrentMessageId() : 'latest';
+              if (typeof getVariables === 'function') {
+                vars = getVariables({ type: 'message', message_id: messageId });
+              }
+            } catch (e) {
+              console.warn('[Affinity Island] 变量读取异常:', e);
+            }
+
+            const source = vars && vars.stat_data ? vars.stat_data : vars || {};
+            const world = source['世界'] || {};
+            const charsObj = source['角色'] || {};
+
+            const result = {
+              env: {
+                time: world['时间'] || '',
+                location: world['地点'] || '',
+                weather: world['天气'] || '',
+                temp: world['温度'] || '',
+              },
+              characters: [],
+            };
+
+            const charNames = Object.keys(charsObj);
+            if (charNames.length > 0) {
+              charNames.forEach((name, index) => {
+                const item = charsObj[name] || {};
+                result.characters.push({
+                  name: name || `角色 ${index + 1}`,
+                  outfit: item['服饰'] || '常规着装',
+                  valE: clampNumber(item['情感依恋']),
+                  valP: clampNumber(item['肉体吸引']),
+                  valR: clampNumber(item['关系意愿']),
+                  emoji: item['表情'] || '✨',
+                  thought: item['心声'] || '……',
+                });
+              });
+            } else {
+              // 默认兜底示例数据
+              result.env = {
+                time: '14:30',
+                location: '中央庭院',
+                weather: '晴转微雨',
+                temp: '23℃',
+              };
+              result.characters = [
+                {
+                  name: '角色A',
+                  outfit: '白衬衫与针织开衫',
+                  valE: 48,
+                  valP: 26,
+                  valR: 52,
+                  emoji: '😊',
+                  thought: '明明只是平常的微风，但在你身边连呼吸都变得微妙起来……',
+                },
+              ];
+            }
+
+            return result;
+          }
+
+          const stateData = fetchFloorData();
+          let selectedCharIndex = 0;
+          let customCollapsedTitle = localStorage.getItem('island_collapsed_title') || 'Amore';
+
+          function updateCollapsedTitle() {
+            const el = wrapper.querySelector('.collapsed-title');
+            if (el) el.innerText = customCollapsedTitle;
+          }
+
+          function renameCollapsedTitle(e) {
+            if (e) e.stopPropagation();
+            const newTitle = prompt('修改灵动岛歌曲标题名称：', customCollapsedTitle);
+            if (newTitle !== null) {
+              customCollapsedTitle = newTitle.trim() || 'Amore';
+              localStorage.setItem('island_collapsed_title', customCollapsedTitle);
+              updateCollapsedTitle();
+            }
+          }
+
+          function getCharNote(char) {
+            if (!char || !char.name) return '';
+            return localStorage.getItem(`char_note_${char.name}`) || '';
+          }
+
+          function editCharNote(e, idx) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const index = typeof idx === 'number' ? idx : selectedCharIndex;
+            const char = stateData.characters[index];
+            if (!char) return;
+
+            const current = getCharNote(char);
+            const input = prompt(
+              `✏️ 为【${char.name}】设置专属备注名\n\n留空并点击“确定”即可清除备注，恢复显示原名。`,
+              current,
+            );
+            if (input === null) return;
+
+            const trimmed = input.trim();
+            if (trimmed) {
+              localStorage.setItem(`char_note_${char.name}`, trimmed);
+            } else {
+              localStorage.removeItem(`char_note_${char.name}`);
+            }
+
+            renderCharacterTabs();
+            renderSelectedCharacter();
+          }
+
+          function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+              hash = (hash << 5) - hash + str.charCodeAt(i);
+              hash |= 0;
+            }
+            return Math.abs(hash);
+          }
+
+          const universalHobbyEmojis = [
+            '🍰',
+            '🍓',
+            '🥐',
+            '☕',
+            '🧋',
+            '🍡',
+            '🧁',
+            '🥞',
+            '🍵',
+            '🍨',
+            '🍫',
+            '🍒',
+            '🍩',
+            '🍮',
+            '🍇',
+            '🍑',
+            '🥨',
+            '🍪',
+            '🍬',
+            '🍯',
+            '🎨',
+            '🎧',
+            '📖',
+            '📷',
+            '🌸',
+            '🧸',
+            '🎮',
+            '🎻',
+            '🎹',
+            '🎬',
+            '🪶',
+            '🕯️',
+            '🪄',
+            '🪴',
+            '🫧',
+            '🪻',
+          ];
+
+          function getCharDefaultEmoji(char) {
+            if (!char) return '🍰';
+            const name = char.name || '';
+            const userCustomEmoji = localStorage.getItem(`char_hobby_emoji_${name}`);
+            if (userCustomEmoji) return userCustomEmoji;
+            const hash = hashString(name);
+            return universalHobbyEmojis[hash % universalHobbyEmojis.length];
+          }
+
+          // 直接调用原生全局暴露 API 读取角色卡头像
+          function getCharacterCardAvatar(charName) {
+            if (!charName) return null;
+            try {
+              if (typeof getCharAvatarPath === 'function') {
+                const path = getCharAvatarPath(charName);
+                if (path) return path;
+
+                if (typeof getCurrentCharacterName === 'function') {
+                  const curName = getCurrentCharacterName();
+                  if (curName === charName) {
+                    const curPath = getCharAvatarPath('current');
+                    if (curPath) return curPath;
+                  }
+                }
+              }
+
+              if (typeof SillyTavern !== 'undefined' && Array.isArray(SillyTavern.characters)) {
+                const found = SillyTavern.characters.find(
+                  c => c && (c.name === charName || (c.data && c.data.name === charName)),
+                );
+                if (found && found.avatar) {
+                  if (typeof SillyTavern.getThumbnailUrl === 'function') {
+                    return SillyTavern.getThumbnailUrl('avatar', found.avatar);
+                  }
+                  return `/characters/${encodeURIComponent(found.avatar)}`;
+                }
+              }
+            } catch (err) {
+              console.warn('[Affinity Island] 读取角色卡头像失败:', err);
+            }
+            return null;
+          }
+
+          function getDynamicThemePalette(themeStyle, isDark, charName) {
+            const hash = hashString(charName || 'default');
+            const v = hash % 3;
+
+            const themeColorLibrary = {
+              default: {
+                light: [
+                  { c1: '#ffffff', c2: '#f0f0f4', ring: 'rgba(0, 0, 0, 0.06)' },
+                  { c1: '#ffffff', c2: '#ebebf0', ring: 'rgba(0, 0, 0, 0.06)' },
+                  { c1: '#fafafd', c2: '#e6e6ed', ring: 'rgba(0, 0, 0, 0.06)' },
+                ],
+                dark: [
+                  { c1: '#1c1c20', c2: '#08080a', ring: 'rgba(255, 255, 255, 0.12)' },
+                  { c1: '#222226', c2: '#09090b', ring: 'rgba(255, 255, 255, 0.12)' },
+                  { c1: '#18181b', c2: '#070708', ring: 'rgba(255, 255, 255, 0.12)' },
+                ],
+              },
+              ios18: {
+                light: [
+                  { c1: '#ffffff', c2: '#f3e8ff', ring: 'rgba(168, 85, 247, 0.14)' },
+                  { c1: '#faf5ff', c2: '#ede9fe', ring: 'rgba(147, 51, 234, 0.14)' },
+                  { c1: '#ffffff', c2: '#fae8ff', ring: 'rgba(192, 38, 211, 0.14)' },
+                ],
+                dark: [
+                  { c1: '#261138', c2: '#0b0512', ring: 'rgba(192, 132, 252, 0.22)' },
+                  { c1: '#2f1247', c2: '#0d0617', ring: 'rgba(216, 180, 254, 0.22)' },
+                  { c1: '#220b33', c2: '#09040e', ring: 'rgba(168, 85, 247, 0.22)' },
+                ],
+              },
+              ios17: {
+                light: [
+                  { c1: '#ffffff', c2: '#ffe4e6', ring: 'rgba(244, 63, 94, 0.14)' },
+                  { c1: '#fff1f2', c2: '#fecdd3', ring: 'rgba(225, 29, 72, 0.14)' },
+                  { c1: '#ffffff', c2: '#fce7f3', ring: 'rgba(219, 39, 119, 0.14)' },
+                ],
+                dark: [
+                  { c1: '#2e0f18', c2: '#0d0407', ring: 'rgba(251, 113, 133, 0.22)' },
+                  { c1: '#38121e', c2: '#120509', ring: 'rgba(244, 63, 94, 0.22)' },
+                  { c1: '#260a13', c2: '#0a0305', ring: 'rgba(225, 29, 72, 0.22)' },
+                ],
+              },
+              ios16: {
+                light: [
+                  { c1: '#ffffff', c2: '#e0f2fe', ring: 'rgba(14, 165, 233, 0.14)' },
+                  { c1: '#f0f9ff', c2: '#bae6fd', ring: 'rgba(6, 182, 212, 0.14)' },
+                  { c1: '#ffffff', c2: '#e0e7ff', ring: 'rgba(99, 102, 241, 0.14)' },
+                ],
+                dark: [
+                  { c1: '#0e1f33', c2: '#050c14', ring: 'rgba(56, 189, 248, 0.22)' },
+                  { c1: '#12263d', c2: '#060f1a', ring: 'rgba(125, 211, 252, 0.22)' },
+                  { c1: '#0a1726', c2: '#040910', ring: 'rgba(14, 165, 233, 0.22)' },
+                ],
+              },
+              ios15: {
+                light: [
+                  { c1: '#ffffff', c2: '#dcfce7', ring: 'rgba(34, 197, 94, 0.14)' },
+                  { c1: '#f0fdf4', c2: '#bbf7d0', ring: 'rgba(16, 185, 129, 0.14)' },
+                  { c1: '#ffffff', c2: '#ecfdf5', ring: 'rgba(5, 150, 105, 0.14)' },
+                ],
+                dark: [
+                  { c1: '#0d261b', c2: '#05120c', ring: 'rgba(52, 211, 153, 0.22)' },
+                  { c1: '#102e21', c2: '#06170f', ring: 'rgba(110, 231, 183, 0.22)' },
+                  { c1: '#081d14', c2: '#030c08', ring: 'rgba(16, 185, 129, 0.22)' },
+                ],
+              },
+              ios14: {
+                light: [
+                  { c1: '#ffffff', c2: '#fef3c7', ring: 'rgba(245, 158, 11, 0.14)' },
+                  { c1: '#fffbeb', c2: '#fed7aa', ring: 'rgba(249, 115, 22, 0.14)' },
+                  { c1: '#ffffff', c2: '#ffedd5', ring: 'rgba(217, 119, 6, 0.14)' },
+                ],
+                dark: [
+                  { c1: '#2b1608', c2: '#0d0702', ring: 'rgba(251, 191, 36, 0.22)' },
+                  { c1: '#331c0c', c2: '#120904', ring: 'rgba(253, 224, 71, 0.22)' },
+                  { c1: '#231105', c2: '#080401', ring: 'rgba(245, 158, 11, 0.22)' },
+                ],
+              },
+              tavern: {
+                light: [
+                  { c1: '#ffffff', c2: '#fae8ff', ring: 'rgba(217, 70, 239, 0.14)' },
+                  { c1: '#fff1f2', c2: '#ede9fe', ring: 'rgba(99, 102, 241, 0.14)' },
+                  { c1: '#ffffff', c2: '#fee2e2', ring: 'rgba(244, 63, 94, 0.14)' },
+                ],
+                dark: [
+                  { c1: '#280e22', c2: '#0d040b', ring: 'rgba(244, 63, 94, 0.22)' },
+                  { c1: '#2e1030', c2: '#0f0514', ring: 'rgba(217, 70, 239, 0.22)' },
+                  { c1: '#1c0a2a', c2: '#090312', ring: 'rgba(129, 140, 248, 0.22)' },
+                ],
+              },
+            };
+
+            const currentSet = customThemeBg
+              ? themeColorLibrary.ios18
+              : themeColorLibrary[themeStyle] || themeColorLibrary.default;
+            const list = isDark ? currentSet.dark : currentSet.light;
+            return list[v];
+          }
+
+          function generateEmojiAvatar(emoji, charName, isDark, themeStyle) {
+            const palette = getDynamicThemePalette(themeStyle, isDark, charName);
+            if (isDark) {
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <defs>
+                            <radialGradient id="thVinylLabelGrad" cx="50%" cy="50%" r="56%">
+                                <stop offset="0%" stop-color="${palette.c1}" />
+                                <stop offset="68%" stop-color="${palette.c1}" stop-opacity="0.85" />
+                                <stop offset="100%" stop-color="${palette.c2}" />
+                            </radialGradient>
+                            <linearGradient id="thVinylSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(255,255,255,0.08)" />
+                                <stop offset="45%" stop-color="transparent" />
+                                <stop offset="55%" stop-color="transparent" />
+                                <stop offset="100%" stop-color="rgba(255,255,255,0.04)" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="100" height="100" rx="28" fill="url(#thVinylLabelGrad)"/>
+                        <rect width="100" height="100" rx="28" fill="url(#thVinylSheen)"/>
+                        <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="0.75" />
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.2" stroke-dasharray="1.5 2.5" />
+                        <circle cx="50" cy="50" r="37" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.75" />
+                        <circle cx="50" cy="50" r="28" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" stroke-dasharray="2 3" />
+                        <circle cx="50" cy="50" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" />
+                        <circle cx="50" cy="50" r="6" fill="#060608" stroke="rgba(255,255,255,0.2)" stroke-width="0.75" />
+                        <text x="50%" y="50%" font-size="42" dominant-baseline="central" text-anchor="middle" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.85)); font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;">${emoji}</text>
+                    </svg>`;
+              return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+            } else {
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="thAvatarGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="${palette.c1}" />
+                                <stop offset="100%" stop-color="${palette.c2}" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="100" height="100" rx="28" fill="url(#thAvatarGradLight)" stroke="${palette.ring}" stroke-width="1.8"/>
+                        <circle cx="50" cy="50" r="43" fill="none" stroke="rgba(0,0,0,0.03)" stroke-width="0.8"/>
+                        <circle cx="50" cy="50" r="37" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="0.6"/>
+                        <text x="50%" y="50%" font-size="44" dominant-baseline="central" text-anchor="middle" style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.06)); font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;">${emoji}</text>
+                    </svg>`;
+              return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+            }
+          }
+
+          let isExpanded = false;
+          let isModalOpen = false;
+          let themeMode = localStorage.getItem('island_theme_mode') || 'system';
+          let activeThemeStyle = localStorage.getItem('system_apple_theme_style') || 'default';
+          let customThemeBg = localStorage.getItem('system_custom_theme_bg') || '';
+
+          function inspectTavernTheme() {
+            let doc = document;
+            try {
+              if (window.parent && window.parent.document && window.parent.document.body) {
+                doc = window.parent.document;
+              }
+            } catch (e) {}
+
+            const root = doc.documentElement;
+            const body = doc.body;
+            const csRoot = window.getComputedStyle(root);
+            const csBody = window.getComputedStyle(body);
+
+            const bg =
+              csRoot.getPropertyValue('--SmartThemeBodyColor').trim() ||
+              csRoot.getPropertyValue('--bodyBackground').trim() ||
+              csBody.backgroundColor ||
+              '#121316';
+
+            let isDark = true;
+            const rgbMatch = bg.match(/\d+/g);
+            if (rgbMatch && rgbMatch.length >= 3) {
+              const r = parseInt(rgbMatch[0]);
+              const g = parseInt(rgbMatch[1]);
+              const b = parseInt(rgbMatch[2]);
+              isDark = (r * 299 + g * 587 + b * 114) / 1000 < 135;
+            }
+            return { bg, isDark };
+          }
+
+          function getEffectiveTheme() {
+            if (activeThemeStyle === 'tavern') {
+              return inspectTavernTheme().isDark ? 'dark' : 'light';
+            }
+            if (themeMode === 'system') {
+              return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            return themeMode;
+          }
+
+          function refreshIcons() {
+            if (window.lucide) {
+              window.lucide.createIcons({ root: wrapper });
+            }
+          }
+
+          function renderCharacterTabs() {
+            const container = wrapper.querySelector('.character-tabs');
+            if (!container) return;
+            container.innerHTML = '';
+            if (stateData.characters.length <= 1) {
+              container.classList.add('hidden');
+              return;
+            }
+            container.classList.remove('hidden');
+
+            stateData.characters.forEach((char, idx) => {
+              const isSelected = idx === selectedCharIndex;
+              const note = getCharNote(char);
+              const displayName = note || char.name;
+
+              const tab = document.createElement('button');
+              tab.className = `click-spring px-2 py-0.5 rounded-full text-[8.5px] font-semibold transition-all shrink-0 flex items-center space-x-1 ${
+                isSelected
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs'
+                  : 'glass-icon-btn text-neutral-600 dark:text-neutral-300'
+              }`;
+              tab.title = note ? `原名：${char.name}｜点击切换角色` : `${char.name}｜点击切换角色`;
+              tab.innerHTML = `<span class="text-[9px] leading-none">${char.emoji}</span><span class="inline-block align-middle truncate max-w-[62px] leading-tight">${escapeHtml(displayName)}</span>`;
+
+              tab.onclick = e => {
+                e.stopPropagation();
+                selectedCharIndex = idx;
+                renderCharacterTabs();
+                renderSelectedCharacter();
+              };
+              container.appendChild(tab);
+            });
+          }
+
+          function renderSelectedCharacter() {
+            const char = stateData.characters[selectedCharIndex] || {
+              name: '无名',
+              outfit: '--',
+              valE: 0,
+              valP: 0,
+              valR: 0,
+              emoji: '✨',
+              thought: '--',
+            };
+
+            const setTxt = (sel, val) => {
+              const el = wrapper.querySelector(sel);
+              if (el) el.innerText = val !== undefined && val !== null && val !== '' ? val : '--';
+            };
+
+            setTxt('.ui-time', stateData.env.time);
+            setTxt('.ui-location', stateData.env.location);
+            setTxt('.ui-weather', stateData.env.weather);
+            setTxt('.ui-temp', stateData.env.temp);
+
+            updateCollapsedTitle();
+            setTxt('.collapsed-emoji', char.emoji);
+
+            const nameEl = wrapper.querySelector('.ui-char-name');
+            const charNote = getCharNote(char);
+            const showName = charNote || char.name;
+            if (nameEl) {
+              nameEl.innerText = showName;
+              nameEl.title = charNote ? `原名：${char.name}｜点击修改备注名` : '点击设置备注名';
+            }
+
+            setTxt('.collapsed-char-sub', `@${showName} · ${stateData.env.location || '--'}`);
+
+            const avatarEl = wrapper.querySelector('.ui-avatar');
+            const collapsedAvatarEl = wrapper.querySelector('.collapsed-avatar');
+            const savedAvatar = localStorage.getItem(`char_avatar_${char.name}`);
+            const cardAvatar = getCharacterCardAvatar(char.name);
+            const isDark = getEffectiveTheme() === 'dark';
+
+            const dynamicEmojiAvatar = generateEmojiAvatar(
+              getCharDefaultEmoji(char),
+              char.name,
+              isDark,
+              activeThemeStyle,
+            );
+            const finalAvatarSrc = savedAvatar || cardAvatar || dynamicEmojiAvatar;
+            if (avatarEl) avatarEl.src = finalAvatarSrc;
+            if (collapsedAvatarEl) collapsedAvatarEl.src = finalAvatarSrc;
+
+            setTxt('.ui-val-e', char.valE);
+            setTxt('.ui-val-p', char.valP);
+            setTxt('.ui-val-r', char.valR);
+
+            const setWidthPx = (sel, val) => {
+              const el = wrapper.querySelector(sel);
+              if (el) {
+                const pct = Math.min(100, Math.max(0, val));
+                el.style.width = (pct * 1.18).toFixed(1) + 'px';
+              }
+            };
+
+            setWidthPx('.ui-bar-e', char.valE);
+            setWidthPx('.ui-bar-p', char.valP);
+            setWidthPx('.ui-bar-r', char.valR);
+
+            setTxt('.ui-outfit', char.outfit);
+            setTxt('.ui-emotion-badge', char.emoji);
+
+            refreshIcons();
+          }
+
+          function triggerAvatarUpload(e) {
+            e.stopPropagation();
+            const char = stateData.characters[selectedCharIndex];
+            if (!char) return;
+
+            const currentEmoji = getCharDefaultEmoji(char);
+            const hasCustomImage = !!localStorage.getItem(`char_avatar_${char.name}`);
+            const hasCardAvatar = !!getCharacterCardAvatar(char.name);
+
+            let resetLabel = '3. 清除当前自定义设置';
+            if (hasCustomImage) {
+              resetLabel = hasCardAvatar
+                ? '3. 清除自定义照片，恢复同名角色卡头像'
+                : '3. 清除自定义照片，恢复专属喜好 Emoji 头像';
+            } else {
+              resetLabel = hasCardAvatar ? '3. 恢复为初始同名角色卡头像' : '3. 恢复为初始喜好 Emoji';
+            }
+
+            const choice = prompt(
+              `【${char.name}】专属头像管理：\n\n` +
+                `1. 从本地相册上传照片作为头像\n` +
+                `2. 自定义设置该角色的喜好食物/爱好 Emoji\n` +
+                `${resetLabel}\n` +
+                `\n请输入选项编号 (1 / 2 / 3)：`,
+              '1',
+            );
+
+            if (choice === '1') {
+              const fileInput = wrapper.querySelector('.avatar-input');
+              if (fileInput) fileInput.click();
+            } else if (choice === '2') {
+              const newEmoji = prompt(
+                `请输入【${char.name}】喜欢的食物或爱好 Emoji (如 🍓、🥐、☕、🎨、🎧、🍡 等)：`,
+                currentEmoji,
+              );
+              if (newEmoji && newEmoji.trim()) {
+                localStorage.setItem(`char_hobby_emoji_${char.name}`, newEmoji.trim());
+                if (hasCustomImage) {
+                  if (confirm(`已更新专属 Emoji 为 ${newEmoji.trim()}。\n是否清除自定义照片以立即展示 Emoji 头像？`)) {
+                    localStorage.removeItem(`char_avatar_${char.name}`);
+                  }
+                }
+                renderSelectedCharacter();
+              }
+            } else if (choice === '3') {
+              localStorage.removeItem(`char_avatar_${char.name}`);
+              localStorage.removeItem(`char_hobby_emoji_${char.name}`);
+              renderSelectedCharacter();
+            }
+          }
+
+          function handleAvatarUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const char = stateData.characters[selectedCharIndex];
+            if (!char) return;
+
+            const reader = new FileReader();
+            reader.onload = evt => {
+              const base64 = evt.target.result;
+              const avatarEl = wrapper.querySelector('.ui-avatar');
+              const colAv = wrapper.querySelector('.collapsed-avatar');
+              if (avatarEl) avatarEl.src = base64;
+              if (colAv) colAv.src = base64;
+              localStorage.setItem(`char_avatar_${char.name}`, base64);
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+          }
+
+          // 严格像素高度计算，禁止 vh / 百分比相对高度
+          function getExpandedHeight() {
+            if (isModalOpen) return '410px';
+            return (stateData.characters.length > 1 ? 290 : 256) + 'px';
+          }
+
+          function expandIsland() {
+            if (isExpanded) return;
+            const island = wrapper.querySelector('.island');
+            const collapsed = wrapper.querySelector('.collapsed-island');
+            const expanded = wrapper.querySelector('.expanded-card');
+
+            const targetWidth = isModalOpen ? '405px' : '396px';
+            island.style.width = targetWidth;
+            island.style.height = getExpandedHeight();
+            island.style.borderRadius = '36px';
+
+            collapsed.classList.remove('opacity-100', 'scale-100');
+            collapsed.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            expanded.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+            expanded.classList.add('opacity-100', 'scale-100');
+
+            isExpanded = true;
+            refreshIcons();
+          }
+
+          function collapseIsland(e) {
+            if (e) e.stopPropagation();
+            if (!isExpanded) return;
+            if (isModalOpen) closeModal();
+
+            const island = wrapper.querySelector('.island');
+            const collapsed = wrapper.querySelector('.collapsed-island');
+            const expanded = wrapper.querySelector('.expanded-card');
+
+            island.style.width = '315px';
+            island.style.height = '48px';
+            island.style.borderRadius = '28px';
+
+            expanded.classList.remove('opacity-100', 'scale-100');
+            expanded.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            collapsed.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+            collapsed.classList.add('opacity-100', 'scale-100');
+
+            isExpanded = false;
+          }
+
+          function handleAvatarInteraction(e) {
+            const vinyl = wrapper.querySelector('.vinyl-wrapper');
+            const rect = vinyl.getBoundingClientRect();
+            const rootRect = wrapper.getBoundingClientRect();
+
+            for (let i = 0; i < 5; i++) {
+              const p = document.createElement('div');
+              p.className = 'heart-particle';
+              p.style.left = rect.left - rootRect.left + rect.width / 2 + 'px';
+              p.style.top = rect.top - rootRect.top + rect.height / 2 + 'px';
+              p.style.setProperty('--tx', (Math.random() - 0.5) * 70 + 'px');
+              p.style.setProperty('--ty', Math.random() * -50 - 15 + 'px');
+              wrapper.appendChild(p);
+              setTimeout(() => p.remove(), 850);
+            }
+
+            const char = stateData.characters[selectedCharIndex];
+            if (!char || !char.thought) return;
+
+            const existingBubbles = wrapper.querySelectorAll('.interactive-thought-bubble');
+            existingBubbles.forEach(b => b.remove());
+
+            const b = document.createElement('div');
+            b.className =
+              'interactive-thought-bubble absolute z-50 bg-white/95 dark:bg-[#1a1a1e]/95 backdrop-blur-md tight-shadow px-3.5 py-2 rounded-2xl text-[11px] leading-relaxed font-medium text-neutral-800 dark:text-neutral-100 max-w-[200px] bubble-anim transition-all duration-300 border border-black/5 dark:border-white/10';
+            b.innerText = char.thought;
+            wrapper.appendChild(b);
+
+            const posX = Math.max(8, Math.min(440 - 190, rect.left - rootRect.left + 35));
+            const posY = Math.max(8, rect.top - rootRect.top - 12);
+            b.style.left = posX + 'px';
+            b.style.top = posY + 'px';
+
+            setTimeout(() => {
+              b.classList.remove('bubble-anim');
+              b.classList.add('bubble-fadeout');
+              setTimeout(() => b.remove(), 300);
+            }, 2000);
+          }
+
+          function setThemeMode(mode) {
+            themeMode = mode;
+            localStorage.setItem('island_theme_mode', themeMode);
+            applyTheme();
+            applySelectedThemeStyle();
+            renderSelectedCharacter();
+            openModal('主题中心');
+          }
+
+          function toggleTheme(e) {
+            if (e) e.stopPropagation();
+            if (themeMode === 'system') themeMode = 'light';
+            else if (themeMode === 'light') themeMode = 'dark';
+            else themeMode = 'system';
+
+            localStorage.setItem('island_theme_mode', themeMode);
+            applyTheme();
+            applySelectedThemeStyle();
+            renderSelectedCharacter();
+          }
+
+          function applyTheme() {
+            const effectiveTheme = getEffectiveTheme();
+            if (effectiveTheme === 'dark') {
+              wrapper.classList.add('dark');
+            } else {
+              wrapper.classList.remove('dark');
+            }
+
+            const btn = wrapper.querySelector('.ui-theme-toggle-btn');
+            if (btn) {
+              let icon = 'smartphone';
+              let tip = '外观: 跟随系统';
+              if (activeThemeStyle === 'default') {
+                icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
+                tip = `外观: 默认主题 (${effectiveTheme === 'dark' ? '夜间黑底' : '日间白底'})`;
+              } else if (activeThemeStyle === 'tavern') {
+                icon = 'sparkles';
+                tip = `外观: 酒馆主题同步 (${effectiveTheme === 'dark' ? '深色' : '浅色'})`;
+              } else if (themeMode === 'light') {
+                icon = 'sun';
+                tip = '外观: 浅色模式';
+              } else if (themeMode === 'dark') {
+                icon = 'moon';
+                tip = '外观: 深色模式';
+              } else {
+                tip = `外观: 跟随系统 (当前为${effectiveTheme === 'dark' ? '深色' : '浅色'})`;
+              }
+
+              btn.setAttribute('title', tip);
+              btn.innerHTML = `<i data-lucide="${icon}" class="w-3 h-3"></i>`;
+              refreshIcons();
+            }
+          }
+
+          function applySelectedThemeStyle() {
+            const mask = wrapper.querySelector('.island-mask-layer');
+            const bgLayer = wrapper.querySelector('.island-bg-layer');
+            if (!mask || !bgLayer) return;
+
+            const effectiveTheme = getEffectiveTheme();
+            const isDark = effectiveTheme === 'dark';
+
+            bgLayer.style.backgroundImage = '';
+            bgLayer.classList.remove('hidden');
+            mask.className = 'island-mask-layer absolute inset-0 backdrop-blur-2xl transition-all duration-700 z-0';
+            mask.style.backgroundColor = '';
+
+            renderCharacterTabs();
+
+            if (customThemeBg) {
+              bgLayer.style.backgroundImage = `url(${customThemeBg})`;
+              mask.classList.add(isDark ? 'bg-black/60' : 'bg-white/50');
+              return;
+            }
+
+            if (activeThemeStyle === 'default') {
+              bgLayer.classList.add('hidden');
+              mask.classList.add('backdrop-blur-3xl');
+              mask.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0.96)' : 'rgba(255, 255, 255, 0.94)';
+              return;
+            }
+
+            if (activeThemeStyle === 'tavern') {
+              const tavern = inspectTavernTheme();
+              bgLayer.classList.add('hidden');
+              mask.classList.add('backdrop-blur-3xl');
+              mask.style.backgroundColor = tavern.isDark
+                ? tavern.bg && tavern.bg.includes('rgba')
+                  ? tavern.bg
+                  : 'rgba(10, 10, 12, 0.92)'
+                : tavern.bg && tavern.bg.includes('rgba')
+                  ? tavern.bg
+                  : 'rgba(255, 255, 255, 0.92)';
+              return;
+            }
+
+            if (activeThemeStyle === 'ios18') {
+              bgLayer.style.backgroundImage = isDark
+                ? 'radial-gradient(circle at 80px 20px, #4a0e4e 0px, #1a0526 120px, #08020e 300px)'
+                : 'radial-gradient(circle at 80px 20px, #f3e8ff 0px, #d8b4fe 110px, #c084fc 300px)';
+              mask.classList.add(isDark ? 'bg-black/65' : 'bg-white/45');
+            } else if (activeThemeStyle === 'ios17') {
+              bgLayer.style.backgroundImage = isDark
+                ? 'radial-gradient(circle at 75px 20px, #4c0519 0px, #1e1b4b 130px, #020617 300px)'
+                : 'radial-gradient(circle at 80px 20px, #ffe4e6 0px, #fecdd3 110px, #bae6fd 300px)';
+              mask.classList.add(isDark ? 'bg-black/65' : 'bg-white/45');
+            } else if (activeThemeStyle === 'ios16') {
+              bgLayer.style.backgroundImage = isDark
+                ? 'radial-gradient(circle at 80px 15px, #083344 0px, #030712 140px, #000000 300px)'
+                : 'radial-gradient(circle at 85px 20px, #cffafe 0px, #a5f3fc 110px, #e0e7ff 300px)';
+              mask.classList.add(isDark ? 'bg-black/65' : 'bg-white/45');
+            } else if (activeThemeStyle === 'ios15') {
+              bgLayer.style.backgroundImage = isDark
+                ? 'radial-gradient(circle at 80px 20px, #064e3b 0px, #022c22 120px, #020617 300px)'
+                : 'radial-gradient(circle at 80px 15px, #d1fae5 0px, #a7f3d0 110px, #fef3c7 300px)';
+              mask.classList.add(isDark ? 'bg-black/65' : 'bg-white/45');
+            } else if (activeThemeStyle === 'ios14') {
+              bgLayer.style.backgroundImage = isDark
+                ? 'radial-gradient(circle at 75px 20px, #451a03 0px, #082f49 130px, #020617 300px)'
+                : 'radial-gradient(circle at 80px 15px, #fef3c7 0px, #fed7aa 110px, #e0f2fe 300px)';
+              mask.classList.add(isDark ? 'bg-black/65' : 'bg-white/45');
+            }
+          }
+
+          function selectSystemThemeStyle(styleName) {
+            customThemeBg = '';
+            localStorage.removeItem('system_custom_theme_bg');
+            activeThemeStyle = styleName;
+            localStorage.setItem('system_apple_theme_style', styleName);
+            applyTheme();
+            applySelectedThemeStyle();
+            renderSelectedCharacter();
+            openModal('主题中心');
+          }
+
+          function removeCustomThemeBg(e) {
+            if (e) e.stopPropagation();
+            customThemeBg = '';
+            localStorage.removeItem('system_custom_theme_bg');
+            activeThemeStyle = 'default';
+            localStorage.setItem('system_apple_theme_style', 'default');
+            applyTheme();
+            applySelectedThemeStyle();
+            renderSelectedCharacter();
+            openModal('主题中心');
+          }
+
+          function handleThemeBackgroundUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+              customThemeBg = evt.target.result;
+              localStorage.setItem('system_custom_theme_bg', customThemeBg);
+              applySelectedThemeStyle();
+              renderSelectedCharacter();
+              openModal('主题中心');
+            };
+            reader.readAsDataURL(file);
+          }
+
+          function openModal(type) {
+            isModalOpen = true;
+            const island = wrapper.querySelector('.island');
+            if (isExpanded) {
+              island.style.width = '405px';
+              island.style.height = getExpandedHeight();
+            }
+
+            const body = wrapper.querySelector('.modal-body');
+            const title = wrapper.querySelector('.modal-title');
+            if (title) title.innerText = type;
+            if (!body) return;
+            body.innerHTML = '';
+
+            if (type === '主题中心') {
+              const effective = getEffectiveTheme();
+              body.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between px-1">
+                                <span class="text-[12px] font-medium text-neutral-500 dark:text-neutral-400 tracking-tight">外观</span>
+                                <span class="text-[11.5px] font-normal text-neutral-400 dark:text-neutral-500 tracking-tight">
+                                    ${activeThemeStyle === 'default' ? `默认 (${effective === 'dark' ? '深色' : '浅色'})` : activeThemeStyle === 'tavern' ? `酒馆 (${effective === 'dark' ? '深色' : '浅色'})` : themeMode === 'system' ? `自动 (${effective === 'dark' ? '深色' : '浅色'})` : themeMode === 'dark' ? '深色' : '浅色'}
+                                </span>
+                            </div>
+                            <div class="p-1 rounded-2xl glass-icon-btn grid grid-cols-3 gap-1">
+                                <button data-mode="system" class="theme-mode-btn click-spring py-2 rounded-xl flex items-center justify-center space-x-1.5 text-[12px] tracking-tight transition-all ${themeMode === 'system' && activeThemeStyle !== 'tavern' ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10 font-semibold' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white font-normal'}">
+                                    <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+                                    <span>跟随系统</span>
+                                </button>
+                                <button data-mode="light" class="theme-mode-btn click-spring py-2 rounded-xl flex items-center justify-center space-x-1.5 text-[12px] tracking-tight transition-all ${themeMode === 'light' && activeThemeStyle !== 'tavern' ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10 font-semibold' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white font-normal'}">
+                                    <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+                                    <span>浅色</span>
+                                </button>
+                                <button data-mode="dark" class="theme-mode-btn click-spring py-2 rounded-xl flex items-center justify-center space-x-1.5 text-[12px] tracking-tight transition-all ${themeMode === 'dark' && activeThemeStyle !== 'tavern' ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10 font-semibold' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white font-normal'}">
+                                    <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                                    <span>深色</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between px-1">
+                                <span class="text-[12px] font-medium text-neutral-500 dark:text-neutral-400 tracking-tight">光影效果</span>
+                                <span class="text-[11.5px] font-medium text-rose-500 dark:text-rose-400 tracking-tight">
+                                    ${activeThemeStyle === 'default' ? '默认极简' : activeThemeStyle === 'tavern' ? '酒馆同步' : '动态渐变'}
+                                </span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl glass-icon-btn flex items-center justify-between gap-1">
+                                <button data-preset="default" title="默认极简" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'default' && !customThemeBg ? 'ring-2 ring-neutral-400 dark:ring-white ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full border border-white/40 shadow-inner flex overflow-hidden pointer-events-none">
+                                        <span class="w-1/2 h-full bg-white"></span>
+                                        <span class="w-1/2 h-full bg-black"></span>
+                                    </span>
+                                </button>
+                                <button data-preset="ios18" title="iOS 18" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'ios18' && !customThemeBg ? 'ring-2 ring-purple-400 ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full bg-gradient-to-tr from-[#1a0526] via-[#4a0e4e] to-[#c084fc] shadow-inner border border-white/20 pointer-events-none"></span>
+                                </button>
+                                <button data-preset="ios17" title="iOS 17" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'ios17' && !customThemeBg ? 'ring-2 ring-rose-400 ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full bg-gradient-to-tr from-[#1e1b4b] via-[#f43f5e] to-[#bae6fd] shadow-inner border border-white/20 pointer-events-none"></span>
+                                </button>
+                                <button data-preset="ios16" title="iOS 16" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'ios16' && !customThemeBg ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full bg-gradient-to-tr from-[#030712] via-[#083344] to-[#06b6d4] shadow-inner border border-white/20 pointer-events-none"></span>
+                                </button>
+                                <button data-preset="ios15" title="iOS 15" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'ios15' && !customThemeBg ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full bg-gradient-to-tr from-[#022c22] via-[#10b981] to-[#fef3c7] shadow-inner border border-white/20 pointer-events-none"></span>
+                                </button>
+                                <button data-preset="ios14" title="iOS 14" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'ios14' && !customThemeBg ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full bg-gradient-to-tr from-[#082f49] via-[#f59e0b] to-[#fed7aa] shadow-inner border border-white/20 pointer-events-none"></span>
+                                </button>
+                                <button data-preset="tavern" title="酒馆自适应同步" class="preset-btn click-spring relative w-[38px] h-[38px] rounded-full flex items-center justify-center transition-all ${activeThemeStyle === 'tavern' && !customThemeBg ? 'ring-2 ring-rose-400 ring-offset-2 ring-offset-neutral-100 dark:ring-offset-[#121214] scale-110 shadow-sm' : 'opacity-70 hover:opacity-100 hover:scale-105'}">
+                                    <span class="w-full h-full rounded-full bg-gradient-to-tr from-rose-500 to-indigo-500 shadow-inner border border-white/20 flex items-center justify-center text-white text-[9px] font-bold pointer-events-none">ST</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 pt-0.5">
+                            <div class="flex items-center justify-between px-1">
+                                <span class="text-[12px] font-medium text-neutral-500 dark:text-neutral-400 tracking-tight">自定义背景</span>
+                                ${customThemeBg ? `<button class="btn-clear-bg click-spring text-[12px] text-rose-500 hover:text-rose-600 active:opacity-75 font-normal tracking-tight z-30">恢复默认</button>` : ''}
+                            </div>
+                            <div class="relative w-full h-[52px] rounded-2xl border border-dashed transition-all flex items-center justify-center overflow-hidden ${customThemeBg ? 'border-rose-500/80 bg-rose-50/40 dark:bg-rose-950/30' : 'border-neutral-300 dark:border-white/15 glass-icon-btn hover:border-rose-400'}">
+                                <input type="file" accept="image/*" class="custom-bg-input absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20">
+                                <div class="flex items-center space-x-2.5 px-3.5 pointer-events-none z-10 w-full">
+                                    <div class="w-7 h-7 rounded-xl ${customThemeBg ? 'bg-rose-500 text-white' : 'glass-icon-btn text-neutral-500 dark:text-neutral-400'} flex items-center justify-center shrink-0">
+                                        <i data-lucide="${customThemeBg ? 'check' : 'image-plus'}" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="flex flex-col text-left truncate flex-1 leading-normal">
+                                        <span class="text-[13px] font-medium text-neutral-900 dark:text-white tracking-tight truncate">
+                                            ${customThemeBg ? '已应用自定义背景' : '选取本地照片'}
+                                        </span>
+                                        <span class="text-[11px] font-normal text-neutral-500 dark:text-neutral-400 tracking-tight truncate">
+                                            ${customThemeBg ? '轻点更换背景图片' : '覆盖系统光影背景'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+              body.querySelectorAll('.theme-mode-btn').forEach(b => {
+                b.onclick = () => setThemeMode(b.getAttribute('data-mode'));
+              });
+              body.querySelectorAll('.preset-btn').forEach(b => {
+                b.onclick = () => selectSystemThemeStyle(b.getAttribute('data-preset'));
+              });
+              const clearBtn = body.querySelector('.btn-clear-bg');
+              if (clearBtn) clearBtn.onclick = removeCustomThemeBg;
+              const bgInp = body.querySelector('.custom-bg-input');
+              if (bgInp) bgInp.onchange = handleThemeBackgroundUpload;
+
+              refreshIcons();
+            }
+
+            const layer = wrapper.querySelector('.modal-layer');
+            layer.classList.remove('hidden');
+            setTimeout(() => layer.classList.remove('opacity-0'), 10);
+          }
+
+          function closeModal() {
+            isModalOpen = false;
+            const l = wrapper.querySelector('.modal-layer');
+            if (!l) return;
+            l.classList.add('opacity-0');
+            setTimeout(() => {
+              l.classList.add('hidden');
+              if (isExpanded) {
+                const island = wrapper.querySelector('.island');
+                island.style.width = '396px';
+                island.style.height = getExpandedHeight();
+              }
+            }, 250);
+          }
+
+          function initSystemThemeWatcher() {
+            const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleSystemChange = () => {
+              if (themeMode === 'system' && activeThemeStyle !== 'tavern') {
+                applyTheme();
+                applySelectedThemeStyle();
+                renderSelectedCharacter();
+              }
+            };
+            if (systemDarkQuery.addEventListener) {
+              systemDarkQuery.addEventListener('change', handleSystemChange);
+            } else if (systemDarkQuery.addListener) {
+              systemDarkQuery.addListener(handleSystemChange);
+            }
+          }
+
+          function initTavernObserver() {
+            try {
+              const target =
+                window.parent && window.parent.document
+                  ? window.parent.document.documentElement
+                  : document.documentElement;
+              const observer = new MutationObserver(() => {
+                if (activeThemeStyle === 'tavern') {
+                  applyTheme();
+                  applySelectedThemeStyle();
+                  renderSelectedCharacter();
+                }
+              });
+              observer.observe(target, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+            } catch (e) {}
+          }
+
+          // 挂载局部事件监听器
+          const colIsland = wrapper.querySelector('.collapsed-island');
+          if (colIsland) colIsland.onclick = expandIsland;
+
+          const colTitle = wrapper.querySelector('.collapsed-title');
+          if (colTitle) colTitle.onclick = renameCollapsedTitle;
+
+          const btnThemeModal = wrapper.querySelector('.btn-theme-modal');
+          if (btnThemeModal) btnThemeModal.onclick = () => openModal('主题中心');
+
+          const btnThemeToggle = wrapper.querySelector('.ui-theme-toggle-btn');
+          if (btnThemeToggle) btnThemeToggle.onclick = toggleTheme;
+
+          const btnCollapse = wrapper.querySelector('.btn-collapse');
+          if (btnCollapse) btnCollapse.onclick = collapseIsland;
+
+          const vinylWrapper = wrapper.querySelector('.vinyl-wrapper');
+          if (vinylWrapper) vinylWrapper.onclick = handleAvatarInteraction;
+
+          const btnAvatarUpload = wrapper.querySelector('.btn-avatar-upload');
+          if (btnAvatarUpload) btnAvatarUpload.onclick = triggerAvatarUpload;
+
+          const uiCharName = wrapper.querySelector('.ui-char-name');
+          if (uiCharName) uiCharName.onclick = editCharNote;
+
+          const modalClose = wrapper.querySelector('.modal-close-btn');
+          if (modalClose) modalClose.onclick = closeModal;
+
+          const avatarInp = wrapper.querySelector('.avatar-input');
+          if (avatarInp) avatarInp.onchange = handleAvatarUpload;
+
+          // 初始化装载
+          applyTheme();
+          applySelectedThemeStyle();
+          renderCharacterTabs();
+          renderSelectedCharacter();
+          updateCollapsedTitle();
+          initSystemThemeWatcher();
+          initTavernObserver();
+          refreshIcons();
+        })();
+      </script>
+    </div>
+  </body>
+</html>

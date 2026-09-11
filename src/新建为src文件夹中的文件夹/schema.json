@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "世界": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "时间": {
+          "default": "",
+          "type": "string"
+        },
+        "地点": {
+          "default": "",
+          "type": "string"
+        },
+        "天气": {
+          "default": "",
+          "type": "string"
+        },
+        "温度": {
+          "default": "",
+          "type": "string"
+        }
+      }
+    },
+    "角色": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "角色名"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "情感依恋": {
+            "default": 0,
+            "type": "number"
+          },
+          "肉体吸引": {
+            "default": 0,
+            "type": "number"
+          },
+          "关系意愿": {
+            "default": 0,
+            "type": "number"
+          },
+          "服饰": {
+            "default": "",
+            "type": "string"
+          },
+          "表情": {
+            "default": "",
+            "type": "string"
+          },
+          "心声": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
