@@ -1,2 +1,0 @@
-$(()=>{const t='magvarupdate-bundle';if(document.getElementById(t))return;const e=document.createElement('script');e.id=t,e.src='https://testingcf.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate/artifact/bundle.js',e.async=!0,document.head.appendChild(e)});
-//# sourceMappingURL=index.js.map
