@@ -155,7 +155,7 @@
       替换为: |-
         <body>
         <script>
-        $('body').load('https://testingcf.jsdelivr.net/gh/StageDog/tavern_helper_template/dist/情感坐标角色卡/界面/状态栏/index.html')
+        $('body').load('https://akashrtgsakghr-hub.github.io/affinity-character-card/dist/情感坐标角色卡/界面/状态栏/index.html')
         </script>
         </body>
       来源:
@@ -172,11 +172,11 @@
         启用: true
         类型: 脚本
         内容: |-
-          import 'https://testingcf.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate/artifact/bundle.js';
+          import 'https://akashrtgsakghr-hub.github.io/affinity-character-card/dist/情感坐标角色卡/脚本/变量结构/index.js';
 
       - 名称: 变量结构
         id: f65ab164-4268-4366-8228-16af904c2251
         启用: true
         类型: 脚本
         内容: |-
-          import 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_helper_template/dist/情感坐标角色卡/脚本/变量结构/index.js';
+          import { Schema } from './变量结构/index.js'; 

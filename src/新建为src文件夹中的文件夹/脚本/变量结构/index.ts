@@ -1,3 +1,7 @@
+// 必须加上这两行，相当于把工具（zod 和 lodash）带进这个文件
+import { z } from 'zod';
+import _ from 'lodash';
+
 export const Schema = z.object({
   世界: z
     .object({
