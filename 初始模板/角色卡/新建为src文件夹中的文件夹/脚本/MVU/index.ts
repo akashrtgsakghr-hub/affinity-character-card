@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 $(() => {
   const scriptId = 'magvarupdate-bundle';
   if (document.getElementById(scriptId)) {
@@ -10,3 +11,6 @@ $(() => {
   script.async = true;
   document.head.appendChild(script);
 });
+=======
+import 'https://testingcf.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate/artifact/bundle.js';
+>>>>>>> bca3799e3ab288f5d52b3e2777478f654fc5e816
